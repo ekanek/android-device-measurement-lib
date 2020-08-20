@@ -1,2 +1,2 @@
-include ':app'
-rootProject.name='lib-device-measurement'
+include ':lib-device-measurement-utils'
+
