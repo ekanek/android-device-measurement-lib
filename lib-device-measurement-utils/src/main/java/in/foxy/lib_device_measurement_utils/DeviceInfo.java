@@ -8,64 +8,101 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
 
+import java.util.HashMap;
+
 public class DeviceInfo
 {
-    /*
-     * @returns : Total ram size in MB
-     * */
-    public static long getTotalRamSize(Context context){
-        ActivityManager actManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+    private static ActivityManager activityManager=null;
+    private static StatFs statFs=null;
+    private static WindowManager windowManager=null;
+    private static HashMap<String,Long> ramStats=null;
+    private static HashMap<String,Long> deviceMemoryStats=null;
+    private static HashMap<String, String> deviceDisplayStats=null;
+  
+    /**
+     * @param: Context context
+     */
+    public static void initialize(Context context){
+        activityManager= (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        statFs = new StatFs(Environment.getDataDirectory().getPath());
+        windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        ramStats=new HashMap<String,Long>();
+        deviceMemoryStats=new HashMap<String,Long>();
+        deviceDisplayStats=new HashMap<String,String>();
+        calculateRAMStats(context);
+        calculateDeviceMemoryStats();
+        calculateDeviceDisplayStats(context);
+    }
+    
+    /**
+     * @param context
+     */
+    private static void calculateRAMStats(Context context){
         ActivityManager.MemoryInfo memInfo = new ActivityManager.MemoryInfo();
-        if(actManager!=null){
-            actManager.getMemoryInfo(memInfo);
-            return memInfo.totalMem/(1024*1024);
+        long mb = 1024*1024;
+        if(activityManager!=null){
+            activityManager.getMemoryInfo(memInfo);
+            ramStats.put("totalRamSize", memInfo.totalMem/mb);
+            ramStats.put("availableRamSize", memInfo.availMem/mb);
         }
-
-        return 0;
     }
-
-    /*
-     * @returns : Free ram size in MB
-     * */
-    public static long getFreeRamSize(Context context){
-        ActivityManager actManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        ActivityManager.MemoryInfo memInfo = new ActivityManager.MemoryInfo();
-        if(actManager!=null){
-            actManager.getMemoryInfo(memInfo);
-            return memInfo.availMem/(1024*1024);
+    
+    private static void calculateDeviceMemoryStats(){
+        long totalBytes = 0;
+        long freeBytes = 0;
+        long mb = 1024*1024;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            long blockSize = statFs.getBlockSizeLong();
+            totalBytes = blockSize * statFs.getBlockCountLong();
+            freeBytes = blockSize * statFs.getAvailableBlocksLong();
+        }else{
+            long blockSize = statFs.getBlockSize();
+            totalBytes = blockSize * statFs.getBlockCount();
+            freeBytes = blockSize * statFs.getAvailableBlocks();
         }
-
-        return 0;
-
+        deviceMemoryStats.put("totalDeviceStorageSize", totalBytes/mb);
+        deviceMemoryStats.put("availableDeviceStorageSize", freeBytes/mb);
+    
     }
-
-    /*
-     * @returns : total device storage size in MB
-     * */
-    public static long getTotalStorageSize(){
-        StatFs stat = new StatFs(Environment.getDataDirectory().getPath());
-        long bytesAvailable = stat.getBlockSizeLong() * stat.getBlockCountLong();
-        return bytesAvailable / (1024 * 1024);
-    }
-
-    /*
-     * @returns : free device storage size in MB
-     * */
-
-    public static long getFreeStorageSize(){
-        StatFs stat = new StatFs(Environment.getDataDirectory().getPath());
-        long bytesAvailable = stat.getBlockSizeLong() * stat.getAvailableBlocksLong();
-        return bytesAvailable / (1024 * 1024);
-    }
-
-    public static String getScreenResolution(Context context){
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        Display display = wm.getDefaultDisplay();
+    
+    /**
+     * @param context
+     */
+    private static void calculateDeviceDisplayStats(Context context){
+        Display display = windowManager.getDefaultDisplay();
         DisplayMetrics metrics = new DisplayMetrics();
         display.getMetrics(metrics);
-        int width = metrics.widthPixels;
-        int height = metrics.heightPixels;
-        return ""+width+"x"+height;
+        deviceDisplayStats.put("height",""+metrics.heightPixels);
+        deviceDisplayStats.put("width",""+metrics.widthPixels);
+        deviceDisplayStats.put("scaleDensity",""+metrics.scaledDensity);
+        deviceDisplayStats.put("densityDpi",""+metrics.densityDpi);
+        deviceDisplayStats.put("density",""+metrics.density);
+    }
+    
+    
+    /**
+     * Extracts info : totalRamSize, availableRamSize
+     * @return HashMap<String,Long>
+     */
+    public static HashMap<String,Long> getDeviceRamInfo(){
+        return ramStats;
+    }
+    
+    /**
+     * Extracts info : totalDeviceStorageSize, availableDeviceStorageSize
+     * @return HashMap<String,Long>
+     */
+    public static HashMap<String,Long> getDeviceMemoryStats()
+    {
+        return deviceMemoryStats;
+    }
+    
+    /**
+     * Extracts info : height, width,scaleDensity,densityDpi,density
+     * @return HashMap<String,String>
+     */
+    public static HashMap<String,String> getDeviceDisplayStats(){
+        return deviceDisplayStats;
     }
 
 }
