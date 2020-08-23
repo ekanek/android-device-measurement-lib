@@ -41,7 +41,7 @@ public class DeviceInfo
         calculateRAMStats(context);
         calculateDeviceMemoryStats();
         calculateDeviceDisplayStats(context);
-        calculateCameraMetrics();
+        calculateCameraMetrics(context);
     }
     
     /**
