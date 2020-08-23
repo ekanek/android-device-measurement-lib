@@ -1,14 +1,20 @@
 package in.foxy.lib_device_measurement_utils;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.hardware.Camera;
+import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class DeviceInfo
 {
@@ -18,6 +24,7 @@ public class DeviceInfo
     private static HashMap<String,Long> ramStats=null;
     private static HashMap<String,Long> deviceMemoryStats=null;
     private static HashMap<String, String> deviceDisplayStats=null;
+    private static HashMap<String,Integer> cameraStats = null;
   
     /**
      * @param: Context context
@@ -29,9 +36,12 @@ public class DeviceInfo
         ramStats=new HashMap<String,Long>();
         deviceMemoryStats=new HashMap<String,Long>();
         deviceDisplayStats=new HashMap<String,String>();
+        cameraStats = new HashMap<>();
+        
         calculateRAMStats(context);
         calculateDeviceMemoryStats();
         calculateDeviceDisplayStats(context);
+        calculateCameraMetrics();
     }
     
     /**
@@ -80,6 +90,34 @@ public class DeviceInfo
     }
     
     
+    private static void calculateCameraMetrics (Context context){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (context.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                Log.e("DeviceInfo:calculateCameraMetrics()","permission not granted : CAMERA");
+                return;
+            }
+        }
+    
+        int noOfCameras = Camera.getNumberOfCameras();
+        Map<String,Object> cameraStat= new HashMap<>();
+        for (int i = 0;i < noOfCameras; i++)
+        {
+            Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+            Camera.getCameraInfo(i, cameraInfo);
+            Camera camera = Camera.open(i);
+            Camera.Parameters cameraParams = camera.getParameters();
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK)
+            {
+                cameraStat.put("rearCamPictureHeight",cameraParams.getPictureSize().height);
+                cameraStat.put("rearCamPictureWidth",cameraParams.getPictureSize().width);
+            }else if(cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT){
+                cameraStat.put("frontCamPictureHeight",cameraParams.getPictureSize().height);
+                cameraStat.put("frontCamPictureWidth",cameraParams.getPictureSize().width);
+            }
+            camera.release();
+        }
+    }
+    
     /**
      * Extracts info : totalRamSize, availableRamSize
      * @return HashMap<String,Long>
@@ -104,6 +142,13 @@ public class DeviceInfo
     public static HashMap<String,String> getDeviceDisplayStats(){
         return deviceDisplayStats;
     }
-
+    
+    /**
+     * Extracts info : rearCamPictureHeight,rearCamPictureWidth, frontCamPictureHeight,frontCamPictureWidth
+     * @return HashMap<String,String>
+     */
+     public static HashMap<String,Integer> getCameraStats(){
+            return cameraStats;
+     }
 }
 
