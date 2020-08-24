@@ -12,7 +12,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +28,7 @@ public class DeviceInfo
     /**
      * @param: Context context
      */
-    public static void initialize(Context context){
+    public static void initialize(final Context context){
         activityManager= (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         statFs = new StatFs(Environment.getDataDirectory().getPath());
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -37,11 +36,16 @@ public class DeviceInfo
         deviceMemoryStats=new HashMap<String,Long>();
         deviceDisplayStats=new HashMap<String,String>();
         cameraStats = new HashMap<>();
-        
-        calculateRAMStats(context);
-        calculateDeviceMemoryStats();
-        calculateDeviceDisplayStats(context);
-        calculateCameraMetrics(context);
+        new Thread(new Runnable() {
+            @Override
+            public void run () {
+                calculateRAMStats(context);
+                calculateDeviceMemoryStats();
+                calculateDeviceDisplayStats(context);
+                calculateCameraMetrics(context);
+            }
+        }).start();
+       
     }
     
     /**
