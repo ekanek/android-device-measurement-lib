@@ -45,7 +45,6 @@ public class DeviceInfo
                 calculateCameraMetrics(context);
             }
         }).start();
-       
     }
     
     /**
@@ -76,7 +75,6 @@ public class DeviceInfo
         }
         deviceMemoryStats.put("totalDeviceStorageSize", totalBytes/mb);
         deviceMemoryStats.put("availableDeviceStorageSize", freeBytes/mb);
-    
     }
     
     /**
@@ -101,7 +99,6 @@ public class DeviceInfo
                 return;
             }
         }
-    
         int noOfCameras = Camera.getNumberOfCameras();
         Map<String,Object> cameraStat= new HashMap<>();
         for (int i = 0;i < noOfCameras; i++)
