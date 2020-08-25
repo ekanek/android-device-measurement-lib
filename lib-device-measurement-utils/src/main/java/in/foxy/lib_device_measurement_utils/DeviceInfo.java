@@ -32,9 +32,9 @@ public class DeviceInfo
         activityManager= (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         statFs = new StatFs(Environment.getDataDirectory().getPath());
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        ramStats=new HashMap<String,Long>();
-        deviceMemoryStats=new HashMap<String,Long>();
-        deviceDisplayStats=new HashMap<String,String>();
+        ramStats = new HashMap<String,Long>();
+        deviceMemoryStats = new HashMap<String,Long>();
+        deviceDisplayStats = new HashMap<String,String>();
         cameraStats = new HashMap<>();
         new Thread(new Runnable() {
             @Override
