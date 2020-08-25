@@ -17,19 +17,19 @@ import java.util.Map;
 
 public class DeviceInfo
 {
-    private static ActivityManager activityManager=null;
-    private static StatFs statFs=null;
-    private static WindowManager windowManager=null;
-    private static HashMap<String,Long> ramStats=null;
-    private static HashMap<String,Long> deviceMemoryStats=null;
-    private static HashMap<String, String> deviceDisplayStats=null;
+    private static ActivityManager activityManager = null;
+    private static StatFs statFs = null;
+    private static WindowManager windowManager = null;
+    private static HashMap<String,Long> ramStats = null;
+    private static HashMap<String,Long> deviceMemoryStats = null;
+    private static HashMap<String, String> deviceDisplayStats = null;
     private static HashMap<String,Integer> cameraStats = null;
   
     /**
      * @param: Context context
      */
-    public static void initialize(final Context context){
-        activityManager= (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+    public static void initialize(final Context context) {
+        activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         statFs = new StatFs(Environment.getDataDirectory().getPath());
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         ramStats = new HashMap<String,Long>();
@@ -50,17 +50,17 @@ public class DeviceInfo
     /**
      * @param context
      */
-    private static void calculateRAMStats(Context context){
+    private static void calculateRAMStats(Context context) {
         ActivityManager.MemoryInfo memInfo = new ActivityManager.MemoryInfo();
         long mb = 1024*1024;
-        if(activityManager!=null){
+        if(activityManager != null) {
             activityManager.getMemoryInfo(memInfo);
             ramStats.put("totalRamSize", memInfo.totalMem/mb);
             ramStats.put("availableRamSize", memInfo.availMem/mb);
         }
     }
     
-    private static void calculateDeviceMemoryStats(){
+    private static void calculateDeviceMemoryStats() {
         long totalBytes = 0;
         long freeBytes = 0;
         long mb = 1024*1024;
@@ -80,19 +80,19 @@ public class DeviceInfo
     /**
      * @param context
      */
-    private static void calculateDeviceDisplayStats(Context context){
+    private static void calculateDeviceDisplayStats(Context context) {
         Display display = windowManager.getDefaultDisplay();
         DisplayMetrics metrics = new DisplayMetrics();
         display.getMetrics(metrics);
-        deviceDisplayStats.put("height",""+metrics.heightPixels);
-        deviceDisplayStats.put("width",""+metrics.widthPixels);
-        deviceDisplayStats.put("scaleDensity",""+metrics.scaledDensity);
-        deviceDisplayStats.put("densityDpi",""+metrics.densityDpi);
-        deviceDisplayStats.put("density",""+metrics.density);
+        deviceDisplayStats.put("height", ""+metrics.heightPixels);
+        deviceDisplayStats.put("width", ""+metrics.widthPixels);
+        deviceDisplayStats.put("scaleDensity", ""+metrics.scaledDensity);
+        deviceDisplayStats.put("densityDpi", ""+metrics.densityDpi);
+        deviceDisplayStats.put("density", ""+metrics.density);
     }
     
     
-    private static void calculateCameraMetrics (Context context){
+    private static void calculateCameraMetrics (Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (context.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 Log.e("DeviceInfo:calculateCameraMetrics()","permission not granted : CAMERA");
@@ -101,7 +101,7 @@ public class DeviceInfo
         }
         int noOfCameras = Camera.getNumberOfCameras();
         Map<String,Object> cameraStat= new HashMap<>();
-        for (int i = 0;i < noOfCameras; i++)
+        for (int i = 0; i < noOfCameras; i++)
         {
             Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
             Camera.getCameraInfo(i, cameraInfo);
@@ -109,11 +109,11 @@ public class DeviceInfo
             Camera.Parameters cameraParams = camera.getParameters();
             if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK)
             {
-                cameraStat.put("rearCamPictureHeight",cameraParams.getPictureSize().height);
-                cameraStat.put("rearCamPictureWidth",cameraParams.getPictureSize().width);
+                cameraStat.put("rearCamPictureHeight", cameraParams.getPictureSize().height);
+                cameraStat.put("rearCamPictureWidth", cameraParams.getPictureSize().width);
             }else if(cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT){
-                cameraStat.put("frontCamPictureHeight",cameraParams.getPictureSize().height);
-                cameraStat.put("frontCamPictureWidth",cameraParams.getPictureSize().width);
+                cameraStat.put("frontCamPictureHeight", cameraParams.getPictureSize().height);
+                cameraStat.put("frontCamPictureWidth", cameraParams.getPictureSize().width);
             }
             camera.release();
         }
