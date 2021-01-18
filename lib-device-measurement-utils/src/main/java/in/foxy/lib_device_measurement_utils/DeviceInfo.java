@@ -8,10 +8,14 @@ import android.hardware.Camera;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -151,6 +155,37 @@ public class DeviceInfo {
 	 */
 	public static HashMap<String, Integer> getCameraStats () {
 		return cameraStats;
+	}
+
+	/**
+	 *
+	 * @param context
+	 * @return JSONObject 
+	 */
+	public static JSONObject getDeviceDetails(Context context) {
+		JSONObject deviceDetails = null;
+		try{
+			deviceDetails = new JSONObject();
+			String os = "android";
+			String osVersion = Build.VERSION.RELEASE;
+			String manufactrure = Build.MANUFACTURER;
+			String deviceModel = Build.MODEL;
+			String secureId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+			int apiLevel = Build.VERSION.SDK_INT;
+
+			deviceDetails.put("os",os);
+			deviceDetails.put("ssid",secureId);
+			deviceDetails.put("os_version",osVersion);
+			deviceDetails.put("manufacturer",manufactrure);
+			deviceDetails.put("model",deviceModel);
+			deviceDetails.put("fingerprint",secureId);
+			deviceDetails.put("os_api_level",apiLevel);
+
+		}catch (JSONException e) {
+			Log.e("Exception:","DeviceInfo::getDeviceDetails - "+e);
+		}
+
+		return deviceDetails;
 	}
 }
 
