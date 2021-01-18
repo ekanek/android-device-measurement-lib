@@ -175,6 +175,7 @@ public class DeviceInfo {
 			int apiLevel = Build.VERSION.SDK_INT;
 
 			deviceDetails.put("os",os);
+			deviceDetails.put("ssid",secureId);
 			deviceDetails.put("os_version",osVersion);
 			deviceDetails.put("manufacturer",manufactrure);
 			deviceDetails.put("model",deviceModel);
