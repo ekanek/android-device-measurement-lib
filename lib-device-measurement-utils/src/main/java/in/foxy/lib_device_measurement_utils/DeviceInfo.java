@@ -162,31 +162,5 @@ public class DeviceInfo {
 	 * Get device level information including
 	 * os_version, manufacturer, Device model, secure id, api level.
 	 */
-
-	public static JSONObject getDeviceDetails(Context context) {
-		JSONObject deviceDetails = null;
-		try{
-			deviceDetails = new JSONObject();
-			String os = "android";
-			String osVersion = Build.VERSION.RELEASE;
-			String manufactrure = Build.MANUFACTURER;
-			String deviceModel = Build.MODEL;
-			String secureId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-			int apiLevel = Build.VERSION.SDK_INT;
-
-			deviceDetails.put("os",os);
-			deviceDetails.put("ssid",secureId);
-			deviceDetails.put("os_version",osVersion);
-			deviceDetails.put("manufacturer",manufactrure);
-			deviceDetails.put("model",deviceModel);
-			deviceDetails.put("fingerprint",secureId);
-			deviceDetails.put("os_api_level",apiLevel);
-
-		}catch (JSONException e) {
-			Log.e("Exception:","DeviceInfo::getDeviceDetails - "+e);
-		}
-
-		return deviceDetails;
-	}
 }
 
